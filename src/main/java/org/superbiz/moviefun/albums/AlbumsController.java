@@ -1,6 +1,8 @@
 package org.superbiz.moviefun.albums;
 
 import org.apache.tika.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -25,6 +27,8 @@ public class AlbumsController {
 
     private final AlbumsBean albumsBean;
     private final BlobStore blobStore;
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
 
     public AlbumsController(AlbumsBean albumsBean, BlobStore blobStore) {
         this.albumsBean = albumsBean;
@@ -34,26 +38,35 @@ public class AlbumsController {
 
     @GetMapping
     public String index(Map<String, Object> model) {
+
+        logger.debug("d<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
+        logger.debug("d<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
+        logger.info("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
+        logger.info("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
         model.put("albums", albumsBean.getAlbums());
         return "albums";
     }
 
     @GetMapping("/{albumId}")
     public String details(@PathVariable long albumId, Map<String, Object> model) {
+        logger.debug("d:get cover for album with id {}", albumId);
+
         model.put("album", albumsBean.find(albumId));
         return "albumDetails";
     }
 
     @PostMapping("/{albumId}/cover")
     public String uploadCover(@PathVariable Long albumId, @RequestParam("file") MultipartFile uploadedFile) {
-        System.out.println("Uploading cover for album with id " + albumId);
+        //System.out.println("Uploading cover for album with id " + albumId);
+        logger.info("Uploading cover for album with id {}", albumId);
 
         if (uploadedFile.getSize() > 0) {
             try {
                 tryToUploadCover(albumId, uploadedFile);
 
             } catch (IOException e) {
-                e.printStackTrace();
+                //e.printStackTrace();
+                logger.error("There was an error while uploading album cover", e);
             }
         }
 
@@ -100,4 +113,7 @@ public class AlbumsController {
     private String getCoverBlobName(@PathVariable long albumId) {
         return format("covers/%d", albumId);
     }
+
+
+
 }
